@@ -69,23 +69,21 @@
 
 (defun my-compile-jump()
   "if file has an attached line num goto that line, ie boom.rb:12"
-    (interactive)
-  (setq line-num 0)
-  (setq filename nil)
-  (save-excursion
-    (search-forward-regexp "tsx?\n?(\\([0-9]+\\)," (point-max) t)
-    (setq line-num (string-to-number (match-string 1)))   
-    (goto-char (point-min))
-    (search-forward-regexp "[a-z]+\\.+tsx?" (point-max) t)
-    (setq filename (match-string 0))    
-    )
-  (switch-to-buffer (find-file-noselect (concat default-directory "/" filename)))
-  (goto-line line-num))
+  (interactive)
+  (let ((line-num (progn
+                    (goto-char (point-min))
+                    (search-forward-regexp "tsx?\n?\(\\([0-9]+\\)," (point-max) t)
+                    (string-to-number (match-string 1))))
+        (file-name (progn (goto-char (point-min))
+                          (search-forward-regexp "[a-z]+\\.+tsx?" (point-max) t)
+                          (match-string 0))))
+    (message "============================1found regexps: %s %s" file-name line-num)
+    (switch-to-buffer (find-file-noselect (concat default-directory "/" file-name)))
+    (goto-line line-num)))
 
 (setq compileout-highlights
       '(("error\\|abnormally" . font-lock-warning-face)
         ("[a-z]+\\.tsx?" . font-lock-builtin-face)
-        ;;("Pi\\|Infinity" . font-lock-constant-face)
         ))
 
 (define-derived-mode mycompile-mode fundamental-mode
