@@ -1,0 +1,61 @@
+# Temporary files
+*.py[oc]
+*.sw[opn]
+*~
+tmp/
+src/
+.requirements.txt.md5
+.requirements.txt.app.md5
+.requirements.txt.tornado.md5
+
+dump-dev.2016-04.19.bin
+fnml/data/
+
+# IDE system files
+.ropeproject
+.vim
+.idea
+.tags
+
+#nodejs
+fnstaff/node_modules
+
+# Tests
+.coverage
+coverage.xml
+nosetests.xml
+reports/
+django.log
+
+# Virtualenvs
+venv
+.ve
+
+# Unsorted stuff
+
+datadumps/*
+.#*
+*#*#
+staticfiles
+.DS_Store
+fnsite/settings-dev.py
+fnsite/settings.original.py
+gacceess
+gaccess
+gerror
+gpid
+restart.sh
+start.sh
+settings-app.py
+daemon.start.sh
+daemon.restart.sh
+runcellery.sh
+.sass-cache
+chess
+rebuild_woosh_index.sh
+sass-cache
+alexey.gunicorn.start
+talon*
+psd/
+node_modules
+progress/img/
