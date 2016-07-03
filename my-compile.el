@@ -1,73 +1,134 @@
-(defun my-compile-runwebpack ()
-    (interactive)
-      (let* ((name (buffer-file-name))
-             (dirname (file-name-directory name))
-             (out "*compileout*")
-             (outbuff (get-buffer-create "*compileout*")))
-        (cd (file-name-directory name))
+(defun my-compile-rungo ()
+  (interactive)
+  (let* ((name (buffer-file-name))
+         (dirname (file-name-directory name))
+         (out "*goout*")
+         (outbuff (get-buffer-create out)))
+    (cd (file-name-directory name))
 
-        ;;(set-buffer out)
+    (setq default-directory dirname)
 
-        (setq default-directory dirname)
 
-        (with-current-buffer outbuff
-          (erase-buffer)
-          (setq default-directory dirname)
-          (mycompile-mode))
+    
+    (with-current-buffer outbuff
+      (erase-buffer)
+      (setq default-directory dirname)
+      (gomycompile-mode))
 
-        (start-process-shell-command "webpack" out (concat "cd " dirname " && rm -f *_flymake.tsx && webpack"))
 
-        (delete-other-windows)
+    (start-process-shell-command "gobuild" out (concat "cd " dirname " && rm -f *_flymake* && ./run.sh"))
+    (delete-other-windows)
+    
+    (split-window-vertically 26)
 
-        (split-window-vertically 26)
+    
+    
+    (save-excursion
+      (windmove-down)
+      (switch-to-buffer outbuff))
+    (windmove-up)
+    (recenter-top-bottom)
+    
+    (message "goooooooooooo!") 
+    ))
 
-        ;; (let ((window (split-window-vertically 26)))
-        ;;   (message (format "window: %s" window)))
 
-        (save-excursion
-          (windmove-down)
-          (switch-to-buffer outbuff))
-        (windmove-up)
-        (recenter-top-bottom)
+(defun my-compile-jump-go()
+  "if file has an attached line num goto that line, ie boom.rb:12"
+  (interactive)
+    
+  (let ((re "\\([a-z]+\\.go\\):\\([0-9]+\\)"))
+    (beginning-of-line)
+    (search-forward-regexp re (line-end-position) t)
+    (let ((line-num  (string-to-number (match-string 2)))
+          (file-name (match-string 1)))
+      (message "============================found regexps: %s %s" file-name line-num)
+      (switch-to-buffer (find-file-noselect (concat default-directory "/" file-name)))
+      (goto-line line-num))))
 
-        ;; (call-process (concat (file-name-directory name) "/webpack") nil out nil)
-        ;; (message (buffer-substring (point-min) (point-max)))
-
+(setq go-highlights
+      '(("panic\\|abnormally" . font-lock-warning-face)
+        ("[a-z]+\\.go" . font-lock-builtin-face)
         ))
+
+(define-derived-mode gomycompile-mode fundamental-mode
+  (setq font-lock-defaults '(go-highlights))
+  (setq mode-name "gomycompile"))
+
+(add-hook 'gomycompile-mode-hook
+          (lambda ()  (local-set-key (kbd "RET") 'my-compile-jump-go)))
+
+
+(defun my-compile-runwebpack ()
+  (interactive)
+  (let* ((name (buffer-file-name))
+         (dirname (file-name-directory name))
+         (out "*compileout*")
+         (outbuff (get-buffer-create out)))
+    (cd (file-name-directory name))
+
+    ;;(set-buffer out)
+
+    (setq default-directory dirname)
+
+    (with-current-buffer outbuff
+      (erase-buffer)
+      (setq default-directory dirname)
+      (tsxmycompile-mode))
+
+    (start-process-shell-command "webpack" out (concat "cd " dirname " && rm -f *_flymake.tsx && webpack"))
+
+    (delete-other-windows)
+
+    (split-window-vertically 26)
+
+    ;; (let ((window (split-window-vertically 26)))
+    ;;   (message (format "window: %s" window)))
+
+    (save-excursion
+      (windmove-down)
+      (switch-to-buffer outbuff))
+    (windmove-up)
+    (recenter-top-bottom)
+
+    ;; (call-process (concat (file-name-directory name) "/webpack") nil out nil)
+    ;; (message (buffer-substring (point-min) (point-max)))
+
+    ))
 
 (defun mycompile-runtsc ()
-    (interactive)
-      (let* ((name (buffer-file-name))
-             (me (current-buffer))
-             (dirname (file-name-directory name))
-             (outbuff (get-buffer-create "*compileout*")))
-        (cd (file-name-directory name))
-        ;;(set-buffer outbuff)
+  (interactive)
+  (let* ((name (buffer-file-name))
+         (me (current-buffer))
+         (dirname (file-name-directory name))
+         (outbuff (get-buffer-create out)))
+    (cd (file-name-directory name))
+    ;;(set-buffer outbuff)
 
-        (setq default-directory dirname)
+    (setq default-directory dirname)
 
-        (with-current-buffer outbuff
-          (erase-buffer)
-          (setq default-directory dirname)
-          (mycompile-mode))
+    (with-current-buffer outbuff
+      (erase-buffer)
+      (setq default-directory dirname)
+      (tsxmycompile-mode))
 
-        (start-process-shell-command "tsc" outbuff (concat "cd " dirname " && rm -f *_flymake.tsx && tsc"))
+    (start-process-shell-command "tsc" outbuff (concat "cd " dirname " && rm -f *_flymake.tsx && tsc"))
 
-        (delete-other-windows)
+    (delete-other-windows)
 
-        (let ((window (split-window-vertically 26)))
-          (message (format "window: %s" window))
-          )
+    (let ((window (split-window-vertically 26)))
+      (message (format "window: %s" window))
+      )
 
-        (save-excursion
-          (windmove-down)
-          (switch-to-buffer outbuff))
-        (windmove-up)
-        (recenter-top-bottom)
+    (save-excursion
+      (windmove-down)
+      (switch-to-buffer outbuff))
+    (windmove-up)
+    (recenter-top-bottom)
 
-        ))
+    ))
 
-(defun my-compile-jump()
+(defun my-compile-jump-tsx()
   "if file has an attached line num goto that line, ie boom.rb:12"
   (interactive)
   (let ((line-num (progn
@@ -77,21 +138,21 @@
         (file-name (progn (goto-char (point-min))
                           (search-forward-regexp "[a-z]+\\.+tsx?" (point-max) t)
                           (match-string 0))))
-    (message "============================1found regexps: %s %s" file-name line-num)
+    (message "============================ found regexps: %s %s" file-name line-num)
     (switch-to-buffer (find-file-noselect (concat default-directory "/" file-name)))
     (goto-line line-num)))
 
-(setq compileout-highlights
+(setq tsx-highlights
       '(("error\\|abnormally" . font-lock-warning-face)
         ("[a-z]+\\.tsx?" . font-lock-builtin-face)
         ))
 
-(define-derived-mode mycompile-mode fundamental-mode
-  (setq font-lock-defaults '(compileout-highlights))
-  (setq mode-name "mycompile"))
+(define-derived-mode tsxmycompile-mode fundamental-mode
+  (setq font-lock-defaults '(tsx-highlights))
+  (setq mode-name "tsxmycompile"))
 
-(add-hook 'mycompile-mode-hook
-          (lambda ()  (local-set-key (kbd "RET") 'my-compile-jump)))
+(add-hook 'tsxmycompile-mode-hook
+          (lambda ()  (local-set-key (kbd "RET") 'my-compile-jump-tsx)))
 
 
 
@@ -186,8 +247,8 @@
   (interactive)
   (let ((name (buffer-file-name)))
     (if (string-match "\\.tsx?" (buffer-file-name))
-    (switch-to-buffer (find-file-noselect (replace-regexp-in-string "\\.ts" ".js" (replace-regexp-in-string "\\.tsx" ".js" name)) t))
-     (switch-to-buffer (find-file-noselect (replace-regexp-in-string "\\.js" ".ts" name) t)))))
+        (switch-to-buffer (find-file-noselect (replace-regexp-in-string "\\.ts" ".js" (replace-regexp-in-string "\\.tsx" ".js" name)) t))
+      (switch-to-buffer (find-file-noselect (replace-regexp-in-string "\\.js" ".ts" name) t)))))
 
 
 
