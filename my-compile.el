@@ -16,7 +16,7 @@
       (gomycompile-mode))
 
 
-    (start-process-shell-command "gobuild" out (concat "cd " dirname " && rm -f *_flymake* && ./run.sh"))
+    (start-process-shell-command "gobuild" out (concat "cd " dirname " && ./run.sh"))
     (delete-other-windows)
     
     (split-window-vertically 26)
@@ -96,11 +96,12 @@
 
     ))
 
-(defun mycompile-runtsc ()
+(defun my-compile-runtsc ()
   (interactive)
   (let* ((name (buffer-file-name))
          (me (current-buffer))
          (dirname (file-name-directory name))
+         (out "*compileout*")
          (outbuff (get-buffer-create out)))
     (cd (file-name-directory name))
     ;;(set-buffer outbuff)
@@ -128,16 +129,18 @@
 
     ))
 
+
 (defun my-compile-jump-tsx()
   "if file has an attached line num goto that line, ie boom.rb:12"
   (interactive)
   (let ((line-num (progn
-                    (goto-char (point-min))
-                    (search-forward-regexp "tsx?\n?\(\\([0-9]+\\)," (point-max) t)
+                    (beginning-of-line)
+                    (search-forward-regexp "tsx?\n?\(\\([0-9]+\\)," (line-end-position) t)
                     (string-to-number (match-string 1))))
-        (file-name (progn (goto-char (point-min))
-                          (search-forward-regexp "[a-z]+\\.+tsx?" (point-max) t)
-                          (match-string 0))))
+        (file-name (progn
+                     (beginning-of-line)
+                     (search-forward-regexp "[a-z]+\\.+tsx?" (line-end-position) t)
+                     (match-string 0))))
     (message "============================ found regexps: %s %s" file-name line-num)
     (switch-to-buffer (find-file-noselect (concat default-directory "/" file-name)))
     (goto-line line-num)))
@@ -252,10 +255,9 @@
 
 
 
-
-(defun flymake-typescript-init ()
-  (list "tsc")
-  )
+;; (defun flymake-typescript-init ()
+;;   (list "tsc")
+;;   )
 
 
 (provide 'my-compile)
