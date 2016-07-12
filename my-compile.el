@@ -3,13 +3,24 @@
   (let* ((name (buffer-file-name))
          (dirname (file-name-directory name))
          (out "*goout*")
-         (outbuff (get-buffer-create out)))
+         (outbuff (get-buffer out)))
+
+    ;; (progn
+    ;;         (if (get-buffer
+    ;;         (kill-buffer out)
+    ;;              (get-buffer-create out))))
+    (if outbuff        
+          (kill-buffer outbuff))
+    
+
+    (setq outbuff (get-buffer-create out))
+    
     (cd (file-name-directory name))
 
     (setq default-directory dirname)
 
 
-    
+
     (with-current-buffer outbuff
       (erase-buffer)
       (setq default-directory dirname)
@@ -18,25 +29,25 @@
 
     (start-process-shell-command "gobuild" out (concat "cd " dirname " && ./run.sh"))
     (delete-other-windows)
-    
+
     (split-window-vertically 26)
 
-    
-    
+
+
     (save-excursion
       (windmove-down)
       (switch-to-buffer outbuff))
     (windmove-up)
     (recenter-top-bottom)
-    
-    (message "goooooooooooo!") 
+
+    (message "goooooooooooo!")
     ))
 
 
 (defun my-compile-jump-go()
   "if file has an attached line num goto that line, ie boom.rb:12"
   (interactive)
-    
+
   (let ((re "\\([a-z]+\\.go\\):\\([0-9]+\\)"))
     (beginning-of-line)
     (search-forward-regexp re (line-end-position) t)
